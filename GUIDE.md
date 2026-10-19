@@ -36,6 +36,7 @@ It's written for beginners. Claude does the sorting; you make every keep-or-dele
 You need:
 
 - The **Claude desktop app** on a computer, with your chat linked to that computer.
+- **No extra connector or MCP needed.** It uses the desktop app's built-in browser, which comes with the app.
 - To be **signed in to Google Photos** in Claude's built-in browser (the browser pane in the app).
 - The skill saved in Claude. See [Install in the README](README.md#install).
 - A few evenings. Claude works in the background; your part is about 2 hours of reviewing.

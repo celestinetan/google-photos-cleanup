@@ -27,6 +27,7 @@ Results from the first real cleanup: about 66,800 repeats removed, storage down 
 ## Requirements
 
 - The **Claude desktop app** (it uses the app's built-in browser; the web and phone apps won't work).
+- **No extra connector or MCP needed.** It uses the desktop app's built-in browser, which comes with the app.
 - You, **signed in to Google Photos** in that built-in browser.
 - A few evenings. Claude works in the background; your part is mostly reviewing.
 
