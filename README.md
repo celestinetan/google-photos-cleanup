@@ -4,6 +4,8 @@ Created by [Celestine Tan](https://www.linkedin.com/in/celestinetan/) · Last te
 
 A Claude skill that turns a messy Google Photos library into a tidy one before you move somewhere else, such as Proton Drive. Claude clears screenshots and forwarded clutter, builds named albums for your trips and events, tidies old albums, and keeps the best photo of every moment.
 
+**New to this? Start with the [beginner's guide](GUIDE.md):** plain-words explanations, a 10-step walkthrough, an FAQ and a checklist for moving to Proton Drive.
+
 You make every keep-or-delete decision on a review page. Nothing is permanently deleted: removed photos sit in Google's Trash for 30 days, and the skill never empties Trash.
 
 > **Unofficial tool, use at your own risk.** Google doesn't offer a public way to clean a whole library. Since March 2025 its official Photos API only reaches photos an app uploaded itself. This skill works through Google Photos' own web page while you're signed in, and it can stop working whenever Google changes that page. Please read the [Disclaimer & Terms of Use](#disclaimer--terms-of-use) before using it.
