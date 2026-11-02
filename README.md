@@ -1,6 +1,6 @@
 # Google Photos Cleanup – a Claude skill
 
-Created by [Celestine Tan](https://www.linkedin.com/in/celestinetan/) · Last tested: 19 October 2026
+Created by [Celestine Tan](https://www.linkedin.com/in/celestinetan/) · Last tested: 2 November 2026
 
 A Claude skill that turns a messy Google Photos library into a tidy one before you move somewhere else, such as Proton Drive. Claude clears screenshots and forwarded clutter, builds named albums for your trips and events, tidies old albums, and keeps the best photo of every moment.
 
@@ -20,7 +20,12 @@ You make every keep-or-delete decision on a review page. Nothing is permanently 
 6. Curates moment by moment after a short training round on your taste, so the best shot of each moment stays.
 7. Trashes only after a test batch and your "go ahead", then recounts every album.
 8. Finds hidden events among photos outside any album.
-9. Hands you a checklist for moving to Proton Drive.
+9. Splits big catch-all albums ("Unsorted", camera rolls) into named events, and leaves the rest in "Everyday – YEAR".
+10. Harmonises every album name to one format, gives vague albums real names, merges duplicate albums and clears empty ones.
+11. Checks locations: moves photos to the album they belong in, and fills in missing locations from nearby photos or the place in the album title.
+12. Sorts videos without playing them: removes downloaded and TikTok-style reposts and same-spot repeats, writes a place and date description on each, and files them into albums.
+13. Builds albums for a camera-specific set, such as street photography, using camera data and keeping edited exports apart.
+14. Hands you a checklist for moving to Proton Drive.
 
 Results from the first real cleanup: about 66,800 repeats removed, storage down from about 287 GB to 229.7 GB, about 90 new albums, about 2 hours of the owner's time, and no moments lost.
 
