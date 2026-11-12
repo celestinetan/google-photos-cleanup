@@ -3,8 +3,7 @@ name: "google-photos-cleanup"
 description: "Organise and declutter a Google Photos library end to end in the browser - clear screenshots and forwards, build named trip and event albums, tidy and harmonise album names, fix locations, sort videos and street photography, keep the best shot of every moment, and prepare the move to another service."
 ---
 
-# Google Photos cleanup and organisation – best practice (v4, created by Celestine)
-
+# Google Photos cleanup and organisation – best practice (v5, created by Celestine)
 
 Turn a messy Google Photos library into named albums with one good photo of every moment, working directly in photos.google.com. The person decides everything. Claude proposes, shows, and waits for an explicit "go ahead" before anything is trashed or deleted. Nothing is ever permanently deleted: Trash is never emptied.
 
@@ -21,12 +20,14 @@ Say plainly before starting: this is unofficial. Since 31 March 2025 Google's Ph
 - **One trash removes a photo everywhere**: from every album, and from phones that sync with Google Photos. Warn about phone sync before the first trash.
 - **Deleting an album never deletes its photos.** Still ask before deleting albums, because shared albums' links break.
 - **Never edit or delete shared albums owned by someone else.** Keep old albums that are shared with others unless the person says links may break.
+- **Save before you change.** Before any bulk write (rename, description, location, remove from album, delete album), record the old value. The helper's write functions do this in a change log; offer the log as a file at the end. Trash has 30 days of undo; these writes have none unless you log them.
 - **Own mistakes immediately**, fix them, and add a guard so they cannot recur.
 - **If an approval or safety check is unavailable, never work around it.** Pause, tell the person, retry later (schedule a reminder if available).
 
 ## 2. Setup and scoping
 
 - Work in the Claude desktop app's built-in browser, signed in by the person (they type their own password). Read the built-in-browser skill first, and keep the Photos tab in front (tabs_select).
+- **Load the helper first.** Read `scripts/gp-helpers.js` (next to this file) and paste the whole file into one JavaScript call on the Photos tab. It defines `GP` (list albums and items, scan the library, create, rename and delete albums, add and remove items, trash, locations, contact sheets, background jobs). Run `GP.selfTest()`; if it fails, Google has changed its page: tell the person and fall back to clicking through the page. `references/rpc.md` documents every call.
 - **Keep the browser pane visible.** When the window is minimised or covered, Google Photos stops loading thumbnails, scans stall and review pages look blank. Ask the person to park the window partly visible or on a second screen. Check `document.visibilityState` and ask them to bring it back if it reads `hidden`.
 - **Never open videos** to inspect them: Google autoplays them and it looks like Claude is watching. Judge from still thumbnails. If something must be opened, say why.
 - Offer Google Takeout as the most thorough route but accept a "no": everything below works without it.
@@ -45,7 +46,7 @@ Say plainly before starting: this is unofficial. Since 31 March 2025 Google's Ph
 - **Albums:** scroll the Albums page and collect every `a[href*="album/"]` with its label (title, count, Shared). Save the list to localStorage. Flag: date-only names, camera or code names (`858HDJES`, `118_PANA`, `New folder`), multi-part albums (`Pt.1–4`), duplicates, empties, 1-item albums.
 - **Timeline:** scroll the main timeline and record each day's date header, item count and Google's place label. Make the window very large first (for example 2400×3000) so each scroll covers more days. From this, list trips and events per year. Expect gaps (lost phones, unbacked-up years) and say so.
 - **Unidentified big days** (hundreds of photos, no place label): open one sample photo's details or look at a few thumbnails, then **ask the person** to name or skip them. Never invent an event.
-- **Google's place labels can mislead.** In the first project, a run of hallway mirror selfies was tagged "Tokyo". Look at sample thumbnails before treating a day as a trip.
+- **Google's place labels can mislead.** In the first project, a run of indoor selfies taken at home was tagged with a city abroad. Look at sample thumbnails before treating a day as a trip.
 
 ## 4. Quick wins: clutter first
 
@@ -60,20 +61,20 @@ Do this before building albums, so clutter never lands in them.
 
 - **Propose the full list first**: one line per album with dates and highlights, grouped by year. Mention existing albums to top up rather than duplicate. Offer a trimmed list (drop trips of three days or less) and let the person choose.
 - **Pilot one album, show it, get approval of the result and naming**, then continue in batches of about 5, reporting a count table after each batch.
-- **Naming:** agree one format up front and apply it to every album. One that works well: `Title (details) – Month Year`, for example "Myanmar (Inle Lake & Hpa-An) – November 2015", "Friends Visiting Singapore – March & April 2012", "Malacca Trip – 2005 to 2006" (en dash, full month names, `&` for two months, `to` for ranges). Another: `Place YYYY – highlights` ("Italy 2014 – Florence, Venice & Rome").
-- **Mechanics:** search the month ("February 2014"), tick each day's "Select all photos from …" header for the trip dates, then Create or add to album → Album → New album, type the title, Done. Days spanning two months are added in a second pass with Add to → existing album.
-- **Gotchas:** current-year date headers omit the year; month search can miss days with only 1–6 photos; very large selections take a while to save.
+- **Naming:** agree one format up front and apply it to every album. One that works well: `Title (details) – Month Year`, for example "Portugal (Lisbon & Porto) – May 2019", "Friends Visiting – March & April 2012", "Coast Trip – 2005 to 2006" (en dash, full month names, `&` for two months, `to` for ranges). Another: `Place YYYY – highlights` ("Italy 2014 – Florence, Venice & Rome").
+- **Mechanics:** collect the trip's items with `GP.library` (filter by date, and by place where it helps), then `GP.createAlbum(title, ids)`; top up an existing album with `GP.addToAlbum`. Read the album back and compare the count.
+- **Fallback if the calls fail:** search the month ("February 2014"), tick each day's "Select all photos from …" header, then Create or add to album → Album → New album. Current-year date headers omit the year, and month search can miss days with only 1–6 photos.
 - **Verify every album:** count in the albums list against the expected days, and glance at the cover and a few thumbnails. Delete and redo any album that turns out wrong.
 
 ## 6. Tidy existing albums
 
 - **Duplicates and empties:** delete the extra copy and empty or untitled 1-item albums, after a yes.
 - **Merge or rename** date-named and camera-dump albums. Ask the person:
-  - **Merge:** build a combined album (event or year: "2010", "2011", "Paris 2012"), then delete the old ones. Tidier, but more deletions and broken share links.
+  - **Merge:** build a combined album (one per event or year), then delete the old ones. Tidier, but more deletions and broken share links.
   - **Rename only:** safer and quicker.
   - **Mix:** rename date albums, merge multi-part ones.
-- **Renaming:** show a contact sheet of about 12 samples per album, then propose descriptive names: `Topic – detail (date range)`. Examples: "iPhone Camera Roll – May to Jul 2011", "Photoshoot – Set 2 (Feb 2011)", "UK & Ireland 2010 – Day 8: Cliffs of Moher". Mark guesses as guesses. Leave titles that may be a person's name, or albums someone else owns. Apply the names after approval.
-- **Guard every destructive album action:** confirm the page's album title matches the intended album before clicking Delete. In the first project, a slow page load deleted the wrong album, which had to be rebuilt from its dates.
+- **Renaming:** show a contact sheet of about 12 samples per album, then propose descriptive names. Use the agreed format, for example "Phone Camera Roll – May to July 2011" or "Road Trip Day 8 (Coast Walk) – July 2010". Mark guesses as guesses. Leave titles that may be a person's name, or albums someone else owns. Apply the names after approval.
+- **Guard every destructive album action:** re-read the live album list (`GP.albums()`) and confirm the id, title and count match the plan before `GP.deleteAlbum` or `GP.renameAlbum`. When clicking instead, confirm the page's album title first: in the first project, a slow page load deleted the wrong album, which had to be rebuilt from its dates. A delete that is refused usually means someone else owns the album; leave it.
 - **Google throttles bulk album deletions.** After many in a row, deletes appear to work and then the album comes back. Stop and retry later.
 
 ## 7. Curate: keep the best shot of every moment
@@ -104,10 +105,10 @@ Work album by album, year by year, newest first.
 Photos outside any album often hide events.
 
 - Cluster loose photos by day and place, rank days by count, and show a contact sheet per cluster.
-- Propose an album name per cluster (for example "Beach Weekend – Tioman 2014", "28th Birthday Party", "Portrait Photoshoot – 2019", "Family Trip – Vietnam 2025"). Ask about people's names you can't infer.
+- Propose an album name per cluster (for example "Beach Weekend – June 2014", "Birthday Party – May 2016", "Portrait Photoshoot – March 2019"). Ask about people's names you can't infer.
 - Create them after approval, then curate them like any album.
 
-## 8a. Split catch-all albums into events
+## 9. Split catch-all albums into events
 
 Big "Unsorted", camera-roll or year albums hide events.
 
@@ -116,47 +117,54 @@ Big "Unsorted", camera-roll or year albums hide events.
 - Recount the catch-all afterwards against the plan. In the first project the removal half-failed silently (round-number gaps of 100–200 remained); a second pass fixed it.
 - Photos from a trip that already has an album go into that album instead of a new one.
 
-## 8b. Album hygiene at scale
+## 10. Album hygiene at scale
 
-- **Harmonise names** in one pass: build the full rename table (old → new) in the agreed format, show it, apply after "go" with `SVP9Xd`. Shared albums owned by someone else can't be renamed; list them and leave them.
+- **Harmonise names** in one pass: build the full rename table (old → new) in the agreed format, show it, apply after "go" with `GP.renameAlbum`, which logs each old name. Shared albums owned by someone else can't be renamed; list them and leave them.
 - **Vague names** ("Photos", "New album", dates, camera codes): look at samples and propose a descriptive name; mark guesses.
 - **Duplicate albums** (same trip twice, "Part 2", "(1)"): merge into the better-named one, verify the count, then delete the empty copy.
 - **Empty and tiny albums:** delete empties (no photos are touched). For 1–5-photo albums, merge related ones (for example several dinner albums from one year into "Food & Friends – … 2010") and trash pure food or product shots after "go". Leave shared albums alone.
 - **Album descriptions** add little when titles already carry who, where and when; offer them only for a few special albums.
 
-## 8c. Locations (geotags)
+## 11. Locations (geotags)
 
-- **Check placement:** read each photo's coordinates and place name (`fDcn4b`), compute each album's median location, and flag photos far from it. Move strays to the album they belong in, and remove home-base photos that slipped into trip albums. Show the list first.
+- **Check placement:** read each photo's coordinates and place name (`GP.info`), compute each album's median location, and flag photos far from it. Move strays to the album they belong in, and remove home-base photos that slipped into trip albums. Show the list first.
 - **Fill missing locations** in two phases:
   1. Albums with some GPS photos: give each untagged photo the location of the nearest tagged photo **in the same album within 6 hours**; failing that, the album's dominant place.
   2. Albums with no GPS but a place in the title: one place for the whole album, the most specific the title supports (a landmark beats a city beats a country). Skip albums that mix several cities, and event albums with no place in the title.
 - **Never overwrite** a photo that already has a location.
-- **Resolve places** with Google Maps' AutocompleteService (`getPlacePredictions`) and PlacesService `getDetails` for coordinates, both available on the page. Check every match against the album's other photos or the expected country; short or odd queries go wrong (in the first project "8" resolved to Mexico City). Drop anything further than about 60 km from the reference, or rerun with `locationBias`.
+- **Resolve places** with `GP.findPlace`, which uses the Maps library already on the page, and write with `GP.setLocation`. Check every match against the album's other photos or the expected country; short or odd queries go wrong (in the first project "8" resolved to Mexico City). Drop anything further than about 60 km from the reference, or rerun with `locationBias`.
 - **Verify by reading back** a sample (or all) photos afterwards. Google refuses a small share of writes; report the count rather than retrying forever.
 
-## 8d. Videos
+## 12. Videos
 
 - **Never play them.** Read metadata instead: duration, width and height, filename, place and date.
 - **Downloads and reposts:** filenames that are UUIDs or start with `copy_`, `export_`, `FinalVideo`, plus a 960 or 1024 px longest side (TikTok saves). Show a sheet, trash after "go".
 - **Repeats:** clips from the same spot within minutes that only differ by camera movement; keep the best one per spot and place. Very short junk clips (pocket, floor, under 2 s) go too.
-- **Descriptions:** write `Place · Month Year` (plus the event or album name when known) into each video's description with `AQNOFd`, so search and the info panel make sense.
+- **Descriptions:** write `Place · Month Year` (plus the event or album name when known) into each video's description with `GP.setDescription` (pass the old text so it is logged), so search and the info panel make sense.
 - **Albums:** add videos to the trip or event album their date and place match; the rest go to "Videos – Everyday & Day Trips – YEAR".
 
-## 8e. Street photography (or any camera-specific set)
+## 13. Camera-specific sets (street photography and similar)
 
-- **Use camera data, not guesses.** Ask which cameras the person shoots with; make and model come from `fDcn4b`. Native sizes help when camera data is missing (for example Sony a6400 6000×4000, Panasonic GF1 4000×2672).
-- **Edited exports are a separate set:** colour-graded exports often have camera data stripped and a fixed export size (in the first project about 4898×3265). Ask whether the person has a curated, edited set and keep it apart from raw camera files.
-- One album per trip: "Street Photography – Place (details) – Month Year". A "Best Of" album picks the strongest frames in the person's latest editing style, with no repeats across albums.
+The first attempt at this missed five whole sets, because it only looked for full-size camera files. Search wide, then narrow by eye.
 
-## 9. Review, trash and verify
+- **Ask first:** which cameras the person shoots with, whether they keep an edited (colour-graded) set, and whether phone shots belong in these albums.
+- **Scan the whole library, not just albums,** with `GP.library`. Keep every still photo with the camera's shape (3:2 for most system cameras) **at any pixel size**. Resized copies of camera files are common: they keep the camera data but not the native size, so a size filter alone misses them.
+- **Read the camera** (`GP.info`) for every candidate that is not already in one of the set's albums (compare by dedup key). Group the person's own-camera shots by date gaps and place.
+- **Then look at the files with no camera data.** Edited exports and old uploads often have it stripped. Put them on a contact sheet by month and pick the set's kind of photo by eye. A fixed export size that repeats is a strong sign of an edited set.
+- **Judge by content.** Most camera shots are portraits, meals, events or product shoots, not street work. Show the candidates and leave those out.
+- **Edited exports are a separate, curated set.** Keep them apart from unedited camera files, and say when an album mixes the two.
+- **Report what was not searched** (phone photos, videos, files of another shape), so the person knows where a gap could still be. When they say "I think there's more from X", search that place and date range directly before answering.
+- One album per trip, in the agreed name format. A "Best Of" album picks the strongest frames in the person's latest editing style, with no repeats across albums. Adding to these albums never moves photos out of their trip albums.
+
+## 14. Review, trash and verify
 
 - **Dry-run report first:** a table per album (now, to Trash, left) and the categories cut, in plain words.
 - **Review page:** a full-screen overlay of everything marked for Trash, grouped by album and moment, keeper beside the photos going. At most 600 thumbnails per page, with Prev/Next; thousands on one page freeze the pane. Tap to rescue (green); long-press or double-tap to swap the keeper. Persist rescues in localStorage.
 - **Safety check before trashing:** every marked photo, except screenshots and utility shots, must have a kept photo of the same moment within about 20 s in each of its albums. Report any orphans and keep them.
-- **First run on a new account:** trash 1 item through the web call, confirm it appears in Trash, and restore it if the person wants. If the web calls fail, fall back to the normal page: select, then Move to trash.
+- **First run on a new account:** trash 1 item with `GP.trash`, confirm it appears in Trash (`GP.inTrash`), and restore it if the person wants. If the web calls fail, fall back to the normal page: select, then Move to trash.
 - **Test batch:** trash about 20 mixed items first and ask the person to check them in Trash.
-- **Trash the rest in batches of 100** in a background loop tracking `{done, ok, errors}`, recounting each affected album after each batch. Stop on any mismatch. Finish by re-scanning Trash and confirming every planned item is there or was rescued.
-- **Audit before the 30 days run out:** list Trash and compare it with every album's contents. Restore anything that left an album it should have stayed in. Ask per album when it's personal (for example a partner's album).
+- **Trash the rest in batches of 100** in a background job (`GP.job`) tracking `{done, ok, errors}`, recounting each affected album after each batch. Stop on any mismatch. Finish by re-scanning Trash and confirming every planned item is there or was rescued.
+- **Audit before the 30 days run out:** list Trash and compare it with every album's contents. Restore anything that left an album it should have stayed in. Ask per album when it's personal (for example an album about one person).
 - **Report:**
   - Storage from the Manage storage page, not summed file sizes.
   - Items trashed and albums before and after.
@@ -164,32 +172,24 @@ Big "Unsorted", camera-roll or year albums hide events.
   - Older photos uploaded before June 2021 on the free "High quality" setting never counted towards storage, so the main gain may be a lighter export rather than freed space.
 - **A zero rescue rate is a warning sign, not a success.** It may mean the review was too long to check properly. Suggest a quick scroll through Trash before it empties.
 
-## 10. Wrap up and hand off
+## 15. Wrap up and hand off
 
 - Give a short summary: albums created, renamed, merged and deleted; items trashed; what's on hold (unnamed days, shared albums, gaps).
-- **Moving to Proton Drive or similar:** Google Takeout with only Google Photos selected and the largest file size; download all parts within a week; unzip into one folder; import via Proton Drive's web Photos tab or the Windows app (Photos import → Import from Google Photos; folders become albums); check dates on a sample; keep Google Photos until satisfied. Proton skips duplicates it already has.
+- **Moving to Proton Drive or similar:** Google Takeout with only Google Photos selected and the largest file size; download all parts within a week; unzip into one folder; import via Proton Drive's web Photos tab or the Windows app (Photos import → Import from Google Photos; folders become albums); check dates on a sample; keep Google Photos until satisfied. Proton's Windows app skips duplicates it already has; the web import may not.
 - **Habits that keep the library clean:**
   - Delete bursts the same day.
   - Make one album per trip on return.
   - Turn off auto-saving of chat media.
   - Archive screenshots.
 - Offer a short, generic best-practice guide the person can share, with no personal photos or names unless they ask to be credited.
+- **Leave nothing behind in the browser.** Working data in the page's local storage can include thumbnail links and lists of private photos. Offer the change log as a file (`GP.exportLog()`; it is a download, so ask first), then run `GP.cleanup()`. If Trash lists are still needed for the 30-day audit, keep only those (`GP.cleanup(/trash/)`) and clear them after the audit.
 
 ---
 
 ## Technical notes (photos.google.com internals; may change without notice)
 
-- **Batch endpoint:** `/_/PhotosUi/data/batchexecute`, with tokens from `WIZ_global_data` (`SNlM0e`, `FdrFJe`, `cfb2h`). RPC ids seen:
-  - `snAcKc`: list album items, paginated. Each item gives media key, thumbnail URL, width, height, timestamp and dedup key.
-  - `XwAOJf`: move to Trash. Params `[null, 1, [dedupKeys], 3]`. It acts on every copy of the photo. Test with one item first; the reply can list more media keys than were sent.
-  - `zy0IHe`: list Trash, paginated. Use it for audits and restore lists.
-  - `lcxiM`: library listing. Video entries carry key `76647426` = `[durationMs, null, w, h, …]`.
-  - `Z5xsfc`: album list, paginated `[token, null, null, null, 1]`. Each album's last element holds `{"72930366": [1, title, [times…], count, …]}`.
-  - `OXvT9d`: create album. `E1Cajb`: add to album. `ycV3Nd`: remove from album, params `[[mediaIds]]` (the AF1Qip… ids, batches of 50 work). `nV6Qv`: delete album. `SVP9Xd`: rename album, `[albumId, name]`.
-  - `AQNOFd`: set an item's description, `[mediaId, text]`.
-  - `fDcn4b`: item info, params `[mediaId]` (the AF1Qip… id, **not** the dedup key, which returns null). Result `z[0]`: `[9]` = coordinates `[[latE7, lngE7], …]`, `[13]` holds the place name, `[20]` the albums; camera make and model match `\["(Make)","(Model)",null`.
-  - `EzkLib`: search.
-  - `EtUHOe`: edit location. Params `[dedupKeys.map(k => [null, k]), [2, [latE7, lngE7], null, [null, null, typeEnum], "ChIJ…placeId"]]`. It needs a Places `ChIJ…` id (the `0x…` feature id is rejected). `typeEnum`: locality 1, admin area 2, country 3, point of interest 4, premise 5, natural feature 6, neighbourhood 7, street address 8. Remove a location with `[1]` in place of the second element. A reply of `[3]` means invalid argument. Batches of 50 work.
+- **Calls:** everything goes through one endpoint, `/_/PhotosUi/data/batchexecute`. `scripts/gp-helpers.js` wraps the calls and `references/rpc.md` lists each one with its parameters and reply shape. Read the reference before writing a new call; do not guess parameters.
+- **Two ids per item:** the media id (`AF1Qip…`, used for item details, albums and descriptions) and the dedup key (used for Trash and locations). Mixing them up returns nothing or an error.
 - **Real thumbnails for fingerprints:** `fetch(url + '=w96-h96-c', {credentials: 'include'})` then `createImageBitmap`. Loading through `Image()` with crossOrigin returns a placeholder.
 - **Trusted Types also blocks `innerHTML`/`insertAdjacentHTML`;** build overlays with `createElement`.
 - **Thumbnails:** `=w110-h110-c` square crop, `=w250-h250` preview, `=w16-h16-s` for similarity checks, `=w256-h256` for sharpness.
@@ -198,13 +198,14 @@ Big "Unsorted", camera-roll or year albums hide events.
   - Remove from album: photo → More options → Remove from album.
   - Rename: album page → "Click to edit title" → Done.
   - Delete album: More options → Delete album → Delete.
-  - These click English labels; on other languages, tell the person and skip.
+  - These are the fallback when the calls fail. They click English labels; on other languages, tell the person and skip.
 - **URLs:** use `/album/<id>` (`/lr/album/<id>` falsely says "can't access"). Read live titles by fetching `/album/<id>` and parsing `<title>`, decoding HTML entities. Saved album lists go stale, so recheck before acting.
 - **Script hygiene:**
   - Tool calls end after about 45 s. Run long jobs as background async loops that update `window` progress variables, and poll them with short calls.
-  - Store helper code in localStorage and `eval` it **at the start** of each call; Trusted Types blocks it after an `await`. Window variables are lost on navigation, so persist plans and picks to localStorage (for example `__pend_<name>`, `__rescue_<name>`) after every batch, and also to a plan file with a progress log the person can read.
+  - The helper stores itself in localStorage; after a reload, begin the call with `eval(localStorage.__gp);` **before any `await`** (Trusted Types blocks it afterwards). Window variables are lost on navigation, so persist plans and picks to localStorage under names starting with `__` (for example `__pend_<name>`, `__rescue_<name>`) after every batch, so `GP.cleanup()` can find them, and keep a progress log the person can read.
   - Before acting on any saved plan, recheck the live library (album exists, title, count).
 - **Keep the pane visible:** hidden or covered windows stop rendering and stall everything.
+- **If the computer sleeps,** the browser tools disconnect and background jobs stop. Save progress after each batch so a job can resume from where it stopped.
 
 ## Communication
 
@@ -213,6 +214,4 @@ Big "Unsorted", camera-roll or year albums hide events.
 - Before any trash or delete step: what, how many, which albums, how to undo.
 - Explain anything that might look alarming (a video playing, a page reloading) before the person asks.
 
-- **If the computer sleeps,** the browser tools disconnect and background jobs stop. Save progress to localStorage after each batch so a job can resume from where it stopped.
-
-Last tested: 2 November 2026 (sections 8a–8e added after the second round: about 11,000 videos described and sorted, 5,800 junk or repeat videos trashed, 343 albums renamed, 44 duplicate albums merged, 47 event albums split out of catch-alls and about 10,000 photos given locations). Earlier, 19 October 2026: Sections 2–6 and the by-eye curation in section 7 were used in the first project. The visual check, sharpness keeper, grouped review page and test batch are newer: calibrate them on the first run.
+Last tested: 12 November 2026 (v5: helper script and call reference, verified with a create, add, rename, remove and delete round trip on a test album). The camera-set search was corrected after it missed five sets. Earlier rounds: 2 November 2026 (videos, album names, duplicate albums, catch-all splits, locations) and 19 October 2026 (survey, clutter, trip albums, curation, Trash and audit). The visual check and sharpness keeper are the least tested parts: calibrate them on the first run.

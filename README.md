@@ -1,14 +1,14 @@
 # Google Photos Cleanup – a Claude skill
 
-Created by [Celestine Tan](https://www.linkedin.com/in/celestinetan/) · Last tested: 2 November 2026
+Created by [Celestine Tan](https://www.linkedin.com/in/celestinetan/) · Last tested: 12 November 2026
 
-A Claude skill that turns a messy Google Photos library into a tidy one before you move somewhere else, such as Proton Drive. Claude clears screenshots and forwarded clutter, builds named albums for your trips and events, tidies old albums, and keeps the best photo of every moment.
+A Claude skill that turns a messy Google Photos library into a tidy one. Claude does the judgment work a bulk-delete tool can't: it learns which photos you'd keep, names and builds albums for your trips and events, fixes album names and missing locations, and keeps the best photo of every moment. It suits a big tidy-up before you move somewhere else, such as Proton Drive.
 
 **New to this? Start with the [beginner's guide](GUIDE.md):** plain-words explanations, a 10-step walkthrough, an FAQ and a checklist for moving to Proton Drive.
 
 You make every keep-or-delete decision on a review page. Nothing is permanently deleted: removed photos sit in Google's Trash for 30 days, and the skill never empties Trash.
 
-> **Unofficial tool, use at your own risk.** Google doesn't offer a public way to clean a whole library. Since March 2025 its official Photos API only reaches photos an app uploaded itself. This skill works through Google Photos' own web page while you're signed in, and it can stop working whenever Google changes that page. Please read the [Disclaimer & Terms of Use](#disclaimer--terms-of-use) before using it.
+> **Unofficial tool, use at your own risk.** Google doesn't offer a public way to clean a whole library. Since March 2025 its official Photos API only reaches photos an app uploaded itself. This skill works through Google Photos' own web page while you're signed in, and it can stop working whenever Google changes that page. Please read the [Disclaimer](#disclaimer) before using it.
 
 ## What it does
 
@@ -27,26 +27,23 @@ You make every keep-or-delete decision on a review page. Nothing is permanently 
 13. Builds albums for a camera-specific set, such as street photography, using camera data and keeping edited exports apart.
 14. Hands you a checklist for moving to Proton Drive.
 
-Results from the first real cleanup: about 66,800 repeats removed, storage down from about 287 GB to 229.7 GB, about 90 new albums, about 2 hours of the owner's time, and no moments lost.
+Results from the first real cleanup, on about 120,000 photos: about 66,800 items sent to Trash (repeats, screenshots and forwarded clutter), storage down from about 287 GB to 229.7 GB, about 90 new albums, and about 2 hours of the owner's own time for that first round.
 
 ## Requirements
 
-- The **Claude desktop app** (it uses the app's built-in browser; the web and phone apps won't work).
+- The **Claude desktop app**, open on your computer. The skill works in the app's built-in browser, so Claude on the web or on a phone can't do this by itself.
 - **No extra connector or MCP needed.** It uses the desktop app's built-in browser, which comes with the app.
 - You, **signed in to Google Photos** in that built-in browser.
+- **File creation and code execution** turned on in Claude (Settings → Capabilities). Skills need it.
 - A few evenings. Claude works in the background; your part is mostly reviewing.
 
 ## Install
 
-**Option A – upload the ZIP (easiest)**
+1. Download `google-photos-cleanup.zip` from the [Releases](https://github.com/celestinetan/google-photos-cleanup/releases) page. It holds the instructions, a helper script and a reference file.
+2. In Claude, open **Customize → Skills**, choose **+**, then **Create skill**, then **Upload a skill**, and pick the ZIP.
+3. Check the skill is switched on in the list.
 
-1. Download `google-photos-cleanup.zip` from the [Releases](../../releases) page.
-2. In Claude, open **Settings → Capabilities → Skills** and upload the ZIP.
-
-**Option B – copy and paste**
-
-1. Open [`google-photos-cleanup/SKILL.md`](google-photos-cleanup/SKILL.md) and copy everything.
-2. In a Claude chat, say "Save this as a skill", paste it in, and save the card Claude shows you.
+Menus move; if yours differ, see Anthropic's guide: [Using skills in Claude](https://support.claude.com/en/articles/12512180-using-skills-in-claude). Using Claude Code? Unzip the folder into `~/.claude/skills/`.
 
 Then start a new chat and say: *"Use the google-photos-cleanup skill to organise my Google Photos."*
 
@@ -58,9 +55,9 @@ Then start a new chat and say: *"Use the google-photos-cleanup skill to organise
 
 ## Feedback
 
-Found a problem, or did Google change its page? Please [open an issue](../../issues).
+Found a problem, or did Google change its page? Please [open an issue](https://github.com/celestinetan/google-photos-cleanup/issues).
 
-## Disclaimer & Terms of Use
+## Disclaimer
 
 This guide and the Claude skill in it are shared free of charge, for general information only, and are provided "as is" without warranty of any kind. They come with no promise that they are accurate, complete, or fit for any particular purpose.
 
@@ -72,9 +69,8 @@ This guide and the Claude skill in it are shared free of charge, for general inf
 - **Things change.** Google, Proton and Claude can change at any time without notice, which may stop steps from working or change their effects. The "last tested" date shows when it last worked as described.
 - **AI can make mistakes.** Claude proposes; you decide. Review every page before you approve anything for deletion.
 - **Not professional advice.** Nothing here is legal, technical or professional advice.
-- **Sharing.** You may share this guide and skill freely, but keep this section with it and don't present a changed version as the author's.
 
-**By using this guide or the skill, you accept these terms.**
+This section is information about risk. The only licence is the [MIT licence](LICENSE).
 
 ## Licence
 

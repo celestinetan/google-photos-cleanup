@@ -1,0 +1,84 @@
+name: Checks
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  schedule:
+    - cron: '17 6 1 * *'   # monthly link check
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skill header
+        run: |
+          f=google-photos-cleanup/SKILL.md
+          head -1 "$f" | grep -qx -- '---'
+          grep -q '^name: "google-photos-cleanup"$' "$f"
+          d=$(grep '^description: ' "$f" | head -1)
+          [ ${#d} -le 1040 ] || { echo "description too long"; exit 1; }
+
+      - name: Helper script syntax
+        run: node --check google-photos-cleanup/scripts/gp-helpers.js
+
+      - name: Same "last tested" date in all three files
+        run: |
+          get() { grep -o 'Last tested: [0-9]* [A-Za-z]* [0-9]*' "$1" | head -1; }
+          a=$(get README.md); b=$(get GUIDE.md); c=$(get google-photos-cleanup/SKILL.md)
+          echo "$a | $b | $c"
+          [ -n "$a" ] && [ "$a" = "$b" ] && [ "$a" = "$c" ]
+
+      - name: Files the docs point to exist
+        run: |
+          for f in GUIDE.md LICENSE CHANGELOG.md google-photos-cleanup/SKILL.md google-photos-cleanup/scripts/gp-helpers.js google-photos-cleanup/references/rpc.md; do
+            [ -f "$f" ] || { echo "missing $f"; exit 1; }
+          done
+
+      - name: Links
+        run: |
+          fail=0
+          for u in $(grep -ohE 'https?://[^ )>"`]+' README.md GUIDE.md CHANGELOG.md | sort -u); do
+            code=$(curl -s -o /dev/null -L --max-time 25 -A 'Mozilla/5.0 (link check)' -w '%{http_code}' "$u" || true)
+            echo "$code $u"
+            case "$code" in 404|410) fail=1 ;; esac
+          done
+          exit $fail
+
+      - name: Latest release matches the repo
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v=$(grep -o '(v[0-9]*,' google-photos-cleanup/SKILL.md | head -1 | tr -d '(,')
+          tag=$(gh release view --json tagName -q .tagName 2>/dev/null || true)
+          echo "skill $v, latest release $tag"
+          if [ "$v" = "$tag" ]; then
+            gh release download "$tag" -p google-photos-cleanup.zip -D /tmp/rel
+            unzip -q /tmp/rel/google-photos-cleanup.zip -d /tmp/rel
+            diff -r /tmp/rel/google-photos-cleanup google-photos-cleanup
+          else
+            echo "Skill version and latest release differ: release pending, nothing to compare."
+          fi
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ZIP and publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          zip -r google-photos-cleanup.zip google-photos-cleanup
+          notes=$(awk '/^## /{n++} n==1' CHANGELOG.md | tail -n +2)
+          gh release create "$GITHUB_REF_NAME" google-photos-cleanup.zip --title "$GITHUB_REF_NAME" --notes "$notes" --latest

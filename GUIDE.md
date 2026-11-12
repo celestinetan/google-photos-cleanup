@@ -1,12 +1,12 @@
 # Beginner's guide: clean up Google Photos before you move
 
-Created by [Celestine Tan](https://www.linkedin.com/in/celestinetan/) · Last tested: 19 October 2026
+Created by [Celestine Tan](https://www.linkedin.com/in/celestinetan/) · Last tested: 12 November 2026
 
-This guide and the Claude skill in this repository turn a messy Google Photos library into a tidy one before you move somewhere else, such as Proton Drive. Claude clears screenshots and forwarded clutter, builds named albums for your trips and events, tidies old albums, and keeps the best photo of every moment. You end up with clear albums, no lost moments, and far fewer files to move.
+This guide and the Claude skill in this repository turn a messy Google Photos library into a tidy one, for example before you move somewhere else, such as Proton Drive. Claude clears screenshots and forwarded clutter, builds named albums for your trips and events, tidies old albums, and keeps the best photo of every moment. You end up with clear albums and far fewer files to move.
 
 It's written for beginners. Claude does the sorting; you make every keep-or-delete decision on a review page, and anything removed sits in Google's Trash for 30 days.
 
-> **Unofficial tool, use at your own risk.** Google doesn't offer a public way to clean a whole library. Since March 2025 its official Photos API only reaches photos an app uploaded itself. This skill works through Google Photos' own web page while you're signed in, and it can stop working whenever Google changes that page. Please read the [Disclaimer & Terms of Use](#disclaimer--terms-of-use) before you start.
+> **Unofficial tool, use at your own risk.** Google doesn't offer a public way to clean a whole library. Since March 2025 its official Photos API only reaches photos an app uploaded itself. This skill works through Google Photos' own web page while you're signed in, and it can stop working whenever Google changes that page. Please read the [Disclaimer](#disclaimer) before you start.
 
 ## Contents
 
@@ -18,7 +18,7 @@ It's written for beginners. Claude does the sorting; you make every keep-or-dele
 - [Moving to Proton Drive](#moving-to-proton-drive)
 - [FAQ](#faq)
 - [For skill builders: how it works](#for-skill-builders-how-it-works)
-- [Disclaimer & Terms of Use](#disclaimer--terms-of-use)
+- [Disclaimer](#disclaimer)
 
 ## Key ideas in plain words
 
@@ -35,7 +35,8 @@ It's written for beginners. Claude does the sorting; you make every keep-or-dele
 
 You need:
 
-- The **Claude desktop app** on a computer, with your chat linked to that computer.
+- The **Claude desktop app**, open on a computer, with your chat linked to that computer.
+- **File creation and code execution** turned on in Claude (Settings → Capabilities). Skills need it.
 - **No extra connector or MCP needed.** It uses the desktop app's built-in browser, which comes with the app.
 - To be **signed in to Google Photos** in Claude's built-in browser (the browser pane in the app).
 - The skill saved in Claude. See [Install in the README](README.md#install).
@@ -59,7 +60,8 @@ Check these first:
 7. **Curate, moment by moment.** After a short training round on your taste, Claude marks repeats, blurry shots and utility photos such as receipts and tickets. Each review page shows the photo kept beside the ones going. Tap to keep anything.
 8. **Check a test batch, then say "go ahead".** Claude trashes the rest in batches and recounts every album.
 9. **Find hidden events.** Photos outside any album are grouped by day, and Claude suggests new albums for real events.
-10. **Move, and leave Trash alone.** Follow the Proton checklist below. Trash empties itself after 30 days; emptying it sooner can't be undone.
+10. **Optional extras.** Ask for any of these: split big catch-all albums into events, give every album name one format, merge duplicate albums, fill in missing locations, sort and describe videos, or build albums for one camera's photos, such as street photography. Claude shows a plan first each time.
+11. **Move, and leave Trash alone.** Follow the Proton checklist below. Trash empties itself after 30 days; emptying it sooner can't be undone.
 
 ## What gets removed and what always stays
 
@@ -84,16 +86,15 @@ These are always kept:
 
 ## Real results from the first cleanup
 
-The first cleanup, on a library going back to the mid-2000s, sent about 66,800 repeats to Trash over about a week.
+The first cleanup, on a library going back to the mid-2000s, sent about 66,800 items to Trash over about a week: repeats, screenshots and forwarded clutter.
 
 | Measure | Before | After |
 | :- | :- | :- |
 | Google Photos storage | About 287 GB | 229.7 GB |
-| Photos in albums (257 albums) | About 37,900 | About 26,000 |
-| Owner's time spent | — | About 2 hours (an estimated 100 hours of manual sorting) |
-| Moments lost | — | None: every moment kept at least one photo |
+| Photos in albums | About 37,900 | About 26,000 |
+| Owner's time spent | — | About 2 hours for this first round (Claude's estimate for doing it by hand: about 100 hours) |
 
-That project also built about 90 trip and event albums, renamed and merged old ones, and found new events among loose photos. Its lessons are built into the skill:
+The rule throughout was that every moment keeps at least one photo. That project also built about 90 trip and event albums, renamed and merged old ones, and found new events among loose photos. Its lessons are built into the skill:
 
 - **Check every album before trashing.** One pass ignored other albums, and about 6,000 photos had to be restored from Trash. Photos that belong elsewhere are now removed from the album, not trashed.
 - **Check the page before deleting an album.** A slow page once deleted the wrong album, which had to be rebuilt.
@@ -111,7 +112,7 @@ Proton imports from a Google Takeout download, through the Proton Drive web app 
 - [ ] Open a few old photos in Proton and check their dates are right.
 - [ ] Leave Google Photos as it is until you're happy everything arrived.
 
-Proton skips photos it already has, so running the import twice is safe.
+Proton's Windows app skips photos it already has. Its help page doesn't say the same for the web import, so don't drag the same folder into the web app twice.
 
 ## FAQ
 
@@ -125,13 +126,15 @@ Proton skips photos it already has, so running the import twice is safe.
 
 **The review page is blank.** Bring the Claude window to the front, wake your computer, and ask Claude to reopen the page.
 
-**It stopped working.** Google may have changed its page. Check the "last tested" date at the top, and [open an issue](../../issues) so it can be fixed.
+**It stopped working.** Google may have changed its page. Check the "last tested" date at the top, and [open an issue](https://github.com/celestinetan/google-photos-cleanup/issues) so it can be fixed.
 
 ## For skill builders: how it works
 
-- **Access.** It runs in the Claude desktop app's built-in browser, signed in to photos.google.com, through Google Photos' own web requests from that page. A one-item test runs first; clicking the page is the fallback.
+- **Access.** It runs in the Claude desktop app's built-in browser, signed in to photos.google.com, through Google Photos' own web requests from that page. A helper script (`scripts/gp-helpers.js`) wraps those requests and `references/rpc.md` documents them. A health check and a one-item test run first; clicking the page is the fallback.
+- **Undo.** Trash keeps items for 30 days. Renames, descriptions and location changes are written to a change log first, which you can save as a file.
+- **Clean exit.** At the end the skill clears its working data from the browser.
 - **Survey.** It reads the albums list, scrolls the timeline for date headers and place labels, and proposes trips and events.
-- **Albums.** It builds albums by searching each month and selecting whole days, and renames old albums from a sample contact sheet.
+- **Albums.** It builds albums from the photos of each trip's dates, and renames old albums from a sample contact sheet.
 - **Finding repeats.** Candidates come from time and size, and are confirmed by comparing small grey thumbnails. The keeper is the sharpest frame unless you pick another.
 - **Album safety.** A photo is trashed only if it's a repeat in every album it's in. Trashing works on the photo itself, so it leaves all albums at once.
 - **Long jobs.** Browser tool calls end after about 45 seconds, so scans and trashing run as background loops, with progress saved in the browser and in a plan file.
@@ -140,7 +143,7 @@ Proton skips photos it already has, so running the import twice is safe.
 
 The full instructions are in [`google-photos-cleanup/SKILL.md`](google-photos-cleanup/SKILL.md).
 
-## Disclaimer & Terms of Use
+## Disclaimer
 
 This guide and the Claude skill are shared free of charge, for general information only, and are provided "as is" without warranty of any kind. They come with no promise that they are accurate, complete, or fit for any particular purpose.
 
@@ -152,11 +155,12 @@ This guide and the Claude skill are shared free of charge, for general informati
 - **Things change.** Google, Proton and Claude can change at any time without notice, which may stop steps from working or change their effects. The "last tested" date shows when it last worked as described.
 - **AI can make mistakes.** Claude proposes; you decide. Review every page before you approve anything for deletion.
 - **Not professional advice.** Nothing here is legal, technical or professional advice.
-- **Sharing.** You may share this guide and skill freely, but keep this section with it and don't present a changed version as the author's.
 
-**By using this guide or the skill, you accept these terms.**
+This section is information about risk. The only licence is the [MIT licence](LICENSE).
 
 ## Sources
 
 - [Google: Updates to the Google Photos APIs (Library API changes from 31 March 2025)](https://developers.googleblog.com/en/google-photos-picker-api-launch-and-library-api-updates/)
 - [Proton: How to import from Google Photos](https://proton.me/support/how-to-import-from-google-photos)
+- [Google: Delete photos and videos (Trash keeps items for 30 days)](https://support.google.com/photos/answer/6128858?hl=en)
+- [Anthropic: Using skills in Claude](https://support.claude.com/en/articles/12512180-using-skills-in-claude)
