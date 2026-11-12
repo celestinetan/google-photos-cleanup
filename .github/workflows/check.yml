@@ -81,4 +81,8 @@ jobs:
         run: |
           zip -r google-photos-cleanup.zip google-photos-cleanup
           notes=$(awk '/^## /{n++} n==1' CHANGELOG.md | tail -n +2)
-          gh release create "$GITHUB_REF_NAME" google-photos-cleanup.zip --title "$GITHUB_REF_NAME" --notes "$notes" --latest
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" google-photos-cleanup.zip --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" google-photos-cleanup.zip --title "$GITHUB_REF_NAME" --notes "$notes" --latest
+          fi
